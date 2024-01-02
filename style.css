@@ -1,0 +1,25 @@
+body {
+  font-family: georgia, sans-serif;
+}
+
+h4 {
+font-size: 21px;
+}
+
+h1,h2,h3 {
+color: #0f0850;
+}
+
+table {
+font-family: times new roman;s
+}
+
+.footer {
+  background-color: #f5f5f5; 
+  padding: 40px 0;
+  text-align: center;
+}
+
+.footer p {
+  margin-bottom: 10px;
+}

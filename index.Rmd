@@ -1,0 +1,493 @@
+---
+title: 'Indian House Marketing Analysis'
+author: "Jeyakumar N K"
+date: "31/12/2023"
+output:
+  html_document:
+    css: style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Beyond Price Tags: Understanding What Makes Buyers Jump Through Hoops**
+
+### 1. Introduction
+
+Imagine trying to find the perfect home in the bustling Indian market. It's exciting, but with so many choices, where do you even start? Developers want to know what makes you pass out over a property, investors want to find the next hot locality, and you, the home buyer, just want to feel confident in your choice.
+This case study is like a trusty map, helping us understand what makes buyers like you tick. It will uncover the hidden forces that drive decisions, empowering developers to build your dream homes, investors to make smart choices, and you, the buyer, to find the perfect place to call your own. This study delves through six phases of Data Analysis as from Ask, Prepare, Process, Analyse, Share, Act. So, sit tight and let's explore the exciting world of Indian house marketing!
+
+### 2. Ask
+
+This phase involves asking questions to make data driven decisions.
+
+**What is the Problem?** Many stakeholders in the Indian housing market lack a deep understanding of what drives buyers to purchase specific properties. This leads to ineffective marketing strategies and listing prioritization, potentially impacting sales and profitability.
+
+**How it can be solved?** Identifying factors influencing buyer decisions in the Indian housing market, with a focus on location, price, property features, and other influential aspects.
+
+**Identifying Metrics for achieving objective**
+
+*	*Price per Square Foot:* To analyse how price varies across different locations, property types, and features to understand buyer preferences and value perceptions.
+
++	*Geographical Patterns:* To explore how property prices, sales volume, and buyer preferences vary across different cities to identify popular areas and potential market shifts.
+
+-	*Property Feature Preferences:* To analyse which features (e.g., number of bedrooms, square footage, amenities) are associated with higher sale prices or faster sales to understand buyer priorities.
+
+**Who are all the Stakeholders?**
+
++	*Developers:* Can refine target audiences, optimize project features, and adjust pricing strategies based on buyer preferences.
+
+*	*Real Estate Agents:* Can hone marketing efforts, prioritize listings based on buyer interest, and provide better property recommendations.
+
+-	*Investors:* Can identify promising locations, property types, and features for optimal investment returns.
+
+
+**Who is the audience for this analysis?**
+
++	*Primary audience:* Stakeholders mentioned above, with varying levels of data expertise.
+
+-	*Secondary audience:* Potential home buyers interested in market trends and insights.
+
+
+**How will this data help stakeholders make decisions?**
+
+This data analysis will empower stakeholders to:
+
+*	Prioritize features and amenities in listings based on buyer preferences and market trends.
+
++	Optimize pricing strategies to find the sweet spot between profitability and buyer attraction.
+
+-	Identify promising locations for new housing projects based on demand and market dynamics.
+
++	Make informed investment decisions in the Indian housing market.
+
+
+### 3. Prepare
+
+**Data Collection and Storing:**
+
+The data is currently located in a table format, within a spreadsheet. The data is organized into rows representing individual properties and columns representing their attributes (e.g., location, price, features).
+
+**Data Credibility (ROCCC):**
+
++ **R**eliable: The data used for this analysis was from Kaggle, which is the world’s largest reputable data science community with powerful resources for achieving data science goals.
+
+- **O**riginal: Since the data was collected from property aggregators directly, no compromisation to its integrity.
+
++ **C**omprehensive: It was mentioned on Kaggle’s site that “the dataset has been collected across various property aggregators in India.” So, it will cover a representative sample of the Indian housing market
+
+- **C**urrent: Even though the dataset used for this analysis is not current (meant for study purposes), it still reflects recent trends as it is not very old.
+
++ **C**ited: My insights on buyer decisions in the Indian housing market are based on data gathered from the Kaggle **[House Price Dataset](https://www.kaggle.com/datasets/akash14/house-price-dataset/data)**
+
+
+**Data Integrity Verification:**
+
+Initially, the data was loaded in Excel for checking consistency, completeness and accuracy. That includes data formatting, removing duplicated entries, data filtering and sorting.
+
+**Attributes Description:**
+
+POSTED_BY - Category marking who has listed the property like owner, dealer or builder
+
+UNDER_CONSTRUCTION - Under Construction or Not in form of 1’s and 0’s respectively 
+
+RERA - Rera approved or Not in form of 1’s and 0’s respectively
+
+BHK_NO - Number of Rooms
+
+BHK_OR_RK - Type of property. Bedroom + Hall + Kitchen or Room + Kitchen
+
+SQUARE_FT - Total area of the house in square feet
+
+READY_TO_MOVE - Category marking Ready to move or Not in form of 1’s and 0’s respectively
+
+RESALE - Category marking Resale or not in form of 1’s and 0’s respectively
+
+ADDRESS - Address of the property
+
+LONGITUDE - Longitude of the property
+
+LATITUDE - Latitude of the property
+
+TARGET – Price of the property being sold in lakhs
+
+
+
+### 4. Process
+
+**Tools:**
+
+*	**R**: Chosen for its statistical capabilities, extensive data manipulation packages, and wide-ranging visualization options, making it well-suited for this analysis.
+
+Specific R packages used:
+
+  1.	*tidyverse* for data cleaning and manipulation.
+  
+  2.	*dplyr* for data transformation.
+  
+  3.	*ggplot2* for data visualization.
+  
+
+**Installing Packages:** Installed all the required packages for analysis using install.packages(). Here is a complete snapshot of all installed packages.
+
+![](https://imagetolink.com/ib/MfSx1pS2HY.png)
+
+
+**Importing data:** Loaded the data set into R using read_csv() function.
+
+```{r data_set}
+library(readr)
+
+data_set <- read_csv('C:\\Users\\ELCOT\\Desktop\\Data Science\\Data Analytics\\GDA Capstone Project\\House Marketting Dataset.csv')
+```
+
+**Data exploration:** Examined the data structure using str() and summary() to visualize data types and distributions.
+
+```{r data structure}
+library(tidyverse)
+colnames(data_set) # Column names of data set
+str(data_set) #Structure of data set
+glimpse(data_set)
+head(data_set)
+summary(data_set)
+```
+```{r tibble}
+as_tibble(data_set) #displays 10 rows and as many columns as it can fit on screen in case of larger data set
+```
+
+
+**Data Cleaning:** Identifying potential errors or inconsistencies.
+
+```{r libraries}
+library(janitor)
+library(skimr)
+skim_without_charts(data_set)
+
+```
+
+So there is no missing values in the loaded data set. Let us use pipe to rename a column name
+
+```{r renaming}
+renamed <- data_set %>%
+  rename('PRICE(IN_LAKHS)' = 'TARGET(PRICE_IN_LACS)')
+glimpse(renamed)
+```
+
+```{r cleaning column names}
+cleaned_names <- rename_with(clean_names(renamed), toupper) #Ensures column name contains only numbers, characters or underscores if not names will be transformed to forementioned form in lowercase.
+glimpse(cleaned_names)
+```
+
+
+**Transforming data:**
+
+Separating *ADDRESS* column to *AREA* and *CITY* using separate() function as follows
+
+```{r separating variables}
+separated <- cleaned_names %>%
+  mutate(ADDRESS = trimws(ADDRESS)) %>%
+  separate(ADDRESS, into = c("AREA", "CITY"), sep = ',(?=[^,]*$)')
+glimpse(separated)
+```
+
+Let's create a new variable (new column) using mutate() function to calculate number of **CENT** of property being sold using existing variable *SQUARE_FT*
+
+```{r new column}
+clean_data <- separated %>%
+  mutate(.after = SQUARE_FT, CENT = SQUARE_FT * 0.0023) #since 1 square feet is equal to 0.0023 cent
+final <- clean_data %>% 
+  select(-LONGITUDE, -LATITUDE) #Excluding LONGITUDE & LATITUDE since they are not required for analysis
+glimpse(final)
+
+rm(data_set, renamed, cleaned_names, separated, clean_data) # Removing all variables except final
+```
+
+
+### 5. Analyze
+
+ The data is now processed and ready for analysis.
+
+```{r formatted data}
+view(final)
+```
+
+![](https://imagetolink.com/ib/eLMIpOoS9K.png)
+
+**Organizing Data:**  Let us order the properties which are available for first time sale. Number 0 in RESALE indicates that the property is new and available in market for fresh sale.
+
+```{r arranging data}
+final %>%
+  arrange(RESALE)
+```
+
+
+Summary statistics for numerical columns
+
+```{r summary}
+names(final)
+summary(final[c("BHK_NO", "SQUARE_FT", "PRICE_IN_LAKHS")])
+```
+Counting frequency of attributes using table() function
+```{r frequencies}
+table(final$POSTED_BY) # Displays properties by who posted? and how many?
+table(final$UNDER_CONSTRUCTION) # 0 - Construction is over while 1 - Under construction
+
+```
+
+**Descriptive Statistical Analysis:** 
+
+i. Measures of central tendency:  Mean, Median of numerical fields 
+
+```{r central tendency}
+#group by BHK_NO and check price
+BHK_Price <- final %>%
+  group_by(BHK_NO) %>%
+  summarise(
+    average_price = mean(PRICE_IN_LAKHS),
+    median_price = median(PRICE_IN_LAKHS),
+    )
+as.data.frame(BHK_Price)
+```
+
+ii. Measures of dispersion: Inter Quartile Range, Variance, Standard Deviation of numerical attributes
+
+```{r dispersion}
+summary(final$PRICE_IN_LAKHS)
+var(final$PRICE_IN_LAKHS)
+sd(final$PRICE_IN_LAKHS)
+```
+iii. Measures of Symmetricity
+
+```{r symmetricity}
+library(e1071)
+skewness(final$PRICE_IN_LAKHS)
+kurtosis(final$PRICE_IN_LAKHS)
+```
+**Relationship between features:** Correlation between Price and other numerical attributes
+
+```{r correlation}
+cor(final$SQUARE_FT, final$PRICE_IN_LAKHS)
+cor(final$BHK_NO, final$PRICE_IN_LAKHS)
+```
+
+  
+**Distribution of prices**
+
+
+```{r prize variation}
+# T-test for price differences between groups
+t.test(PRICE_IN_LAKHS ~ READY_TO_MOVE, data = final)
+
+```
+**Home buyer preferences:** BHK vs RK
+
+```{r preference}
+BHK_over_RK <- final %>%
+  group_by(BHK_OR_RK) %>%
+  count() %>%
+  pivot_wider(names_from = BHK_OR_RK, values_from = n) %>%
+  mutate(prop_BHK = BHK / (BHK + RK))
+BHK_over_RK
+```
+
+**Comparing** prices of *RERA Approved* vs *Not Approved* properties.
+
+```{r approved}
+RERA_PRICE <- final %>%
+  group_by(RERA) %>%
+  summarise( PRICE = mean(PRICE_IN_LAKHS))
+RERA_PRICE  # 0 - Not Approved; 1 - Approved
+```
+**Top 5 cities** preferred by home buyers in India
+
+```{r demand}
+demand_by_location <- final %>%
+  group_by(CITY) %>%
+  count(sort = TRUE)
+head(demand_by_location, 5)
+```
+
+```{r ucPre}
+# Filter for RERA approved and ready-to-move properties
+approved_ready_to_move <- final %>%
+  filter(RERA == 1 & READY_TO_MOVE == 1)
+
+# Sort by cent
+approved_ready_to_move <- approved_ready_to_move %>%
+  arrange(CENT)
+
+# List cent and price
+summary(approved_ready_to_move[c("BHK_NO", "SQUARE_FT", "PRICE_IN_LAKHS")])
+head(approved_ready_to_move[c("BHK_NO", "SQUARE_FT", "PRICE_IN_LAKHS")])
+```
+
+
+### 6. Share
+
+This phase involves making this work accessible to audience by presenting insights found through the art of visualization.
+
+**Data Visualization:** 
+
+
+```{r dist}
+hist(final$PRICE_IN_LAKHS, xlab = "Price in Lakhs", ylab = "Properties", xlim = c(0,5000), main = paste("Histogram for" , "Price of Properties")) #
+boxplot(final$PRICE_IN_LAKHS, ylab = "Frequency of properties", main = "Price distribution of properties") # Used for outlier detection: 3 data points lies far apart from others.
+```
+
+**Bar plot for categorical variables:**
+```{r viz}
+barplot(table(final$POSTED_BY), xlab = "Posted By", ylab = "No. of Properties", main = "Properties Posted By", col = c("blue", "green", "orange"))
+```
+
+
+**Scatter plot for numerical relationships:**
+
+```{r viz2}
+
+pd <- final[sample(nrow(final), 50), ]
+
+plot(x = pd$PRICE_IN_LAKHS, y = pd$CENT, xlab = "Price in Lakhs", ylab = "No of Cent", xlim = c(0, 300), ylim =c(0, 10), main = "Correlation between Price and No. of Cents of property")
+```
+
+
+**Box plots for price comparisons by construction status:**
+```{r viz3}
+boxplot(PRICE_IN_LAKHS ~ UNDER_CONSTRUCTION, data = final, ylab = "Price in Lakhs", xlab = "Status (0: Construction Over; 1: Under Construction)", main = "Influence of Under Construction [1] in Price", col = "blue")
+```
+
+**Bar chart for REAR Approved & Not Approved price comparison:**
+
+```{r RERAPRICE Viz}
+barplot(RERA_PRICE$PRICE, names.arg = RERA_PRICE$RERA, col = c("red", "green"),
+        xlab = "RERA Status (0: Not Approved; 1: Approved)", ylab = "Average Price in Lakhs", main = "Average Price by RERA Status")
+
+```
+
+
+
+```{r demand2}
+selected_cities_state <- c("Bangalore", "Chennai", "Mumbai","Kolkata", "Noida")
+data_subset1 <- demand_by_location[demand_by_location$CITY %in% selected_cities_state, ]
+
+barplot(data_subset1$n, names.arg = data_subset1$CITY, col = "steelblue",
+        xlab = "Cities", ylab = "Property Demand", main = "Highly Demanded Cities in India")
+```
+
+
+
+```{r demand3}
+selected_cities <- c("Coimbatore", "Madurai", "Kanchipuram", "Erode", "Thoothukudi")
+data_subset2 <- demand_by_location[demand_by_location$CITY %in% selected_cities, ]
+
+barplot(data_subset2$n, names.arg = data_subset2$CITY, col = "blue",
+        xlab = "Cities", ylab = "Property Demand", main = "Demand by Location in Tamil Nadu next to Chennai")
+```
+
+
+```{r Bar plots with error bars}
+ggplot(final, aes(x = BHK_NO, y = PRICE_IN_LAKHS, fill = RERA)) + 
+  geom_bar(stat = "summary", fun = "mean") + 
+  geom_errorbar(stat = "summary", fun.data = "mean_se") +
+  ggtitle("Error Bar comparison between No. of BHK and Price of property ") +
+  labs(x = "No. of BHK", y = "Price in Lakhs") +
+  annotate("text", x = 15, y = 1400, label = "BHK - Bedroom, Hall, Kitchen", color = "purple", fontface = "bold")
+```
+
+Let us filter the properties which are approved and ready to move as well less then or equal to 10 Crore and start visualizing them.
+```{r filter}
+library(dplyr)
+data_filtered <- approved_ready_to_move %>% 
+  filter(PRICE_IN_LAKHS <= 1000)
+data_filtered
+```
+
+```{r cor}
+ggplot(data=data_filtered) +
+  geom_point(mapping = aes(x = CENT, y = PRICE_IN_LAKHS)) +
+  ggtitle("Correlation between Number of Cents and Price of property ") +
+  labs(x = "Number of Cent", y = "Price in Lakhs") +
+  annotate("text", x = 65, y = 400, label = "Densely populated data between 0 and 12 Cent", color = "steelblue", fontface = "bold")
+  
+```
+
+```{r smooth}
+ggplot(data_filtered, aes(x = PRICE_IN_LAKHS)) + 
+  geom_density() +
+  ggtitle("Density distribution of price of properties") +
+  labs(x = "Price of property in Lakhs", y = "Density")
+  
+```
+
+
+```{r smooth1}
+ggplot(data_filtered, aes(x = PRICE_IN_LAKHS, y = CENT)) +
+  geom_line() + 
+  geom_smooth() +
+  coord_cartesian(xlim = c(0,100)) +
+  annotate("text", x = 75, y = 30, label = "Superimposed line", color = "purple", fontface = "bold") +
+  ggtitle("\tPrice of property vs Number of Cent with a trend line over line plot") +
+  labs(x = "Price in Lakhs", y = "Number of Cent")
+
+```
+
+```{r histogram}
+ggplot(data_filtered[sample(nrow(data_filtered), 1000), ], aes(x = PRICE_IN_LAKHS, fill = factor(BHK_NO))) +
+  geom_histogram(alpha = 0.5, position = "dodge") +
+  labs(x = "Price in Lakhs", fill = "BHK_NO", y = "Count/ Frequency") +
+  ggtitle("Price distribution with respect to Number of BHK") +
+  coord_cartesian(xlim = c(10,250) )
+```
+
+**Purpose of Violin Plot:**
+
+Visually display the distribution of a numerical variable across different categories or groups.
+
+*Highlights:*
+
+* Central tendency like mean,median can be computed
++ Spread and variability like interquartile range, density can be calculated
++ Asymmetry (skewness) of distribution
++ Presence of outliers can be detected
+
+```{r violin}
+ggplot(data_filtered[sample(nrow(data_filtered), ), ], aes(x = BHK_NO, y = PRICE_IN_LAKHS, fill = RERA)) + 
+  geom_violin() +
+  ggtitle("Violin Plot for Number of BHK vs Price of Property") +
+  labs(x = "Number of BHK", y = "Price of Property (in Lakhs)")
+  
+```
+
+
+### 7. Act
+
+This analysis provides valuable insights for stakeholders in the Indian housing market, including builders, developers, and real estate agents, to make informed decisions:
+
+#### Insights Gained:
+
+**1. Buyer Preferences:**
+
+*	*BHK/RK:* Huge preference for BHK apartments suggests focusing on developing and marketing properties with 2+ bedrooms.
+
++	*Location:* Top 5 cities indicate areas with high demand and potential for targeted marketing campaigns.
+
++	*RERA and Ready-To-Move:* Higher average price for RERA-Approved, Ready-To-Move properties highlights their value to buyers.
+
+
+**2. Pricing Strategies:**
+
+*	*BHK-Price Relationship:* Price increases significantly with BHK count, allowing for tailored pricing structures based on room configurations.
+
++	*Location-Price Variation:* Consider analyzing location-specific price variations to optimize pricing for different regions.
+
++	*RERA Pricing Advantage:* Showcase the guaranteed quality that come with RERA Approved properties, justifying their investment value.
+
+
+**3. Targeted Marketing:**
+
+*	*Develop Location-Specific Campaigns:* Customize marketing messages and communication channels for different cities based on local preferences.
+
+
+### 8. Conclusion
+
+The Indian housing market displays robust demand, with preference for BHK apartments, RERA-approved properties, and key locations include Bangalore, Mumbai, Chennai, Kolkata like metropolitan cities. Understanding these trends can empower stakeholders to make strategic decisions across multiple areas.
